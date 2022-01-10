@@ -115,36 +115,36 @@ namespace UnityLetterboxPillarbox.Controllers
         {
             if (Camera)
             {
-                float screen_spect_ratio = Screen.width / (float)Screen.height;
+                float screen_aspect_ratio = Screen.width / (float)Screen.height;
                 float force_aspect_ratio = forceAspectRatio.x / forceAspectRatio.y;
                 oldForceAspectRatio = forceAspectRatio;
                 oldBlend = blend;
                 oldLetterboxPillarboxColor = letterboxPillarboxColor;
                 oldScreenSize = new Vector2Int(Screen.width, Screen.height);
                 isClearingFrameBuffer = true;
-                if (Mathf.Approximately(screen_spect_ratio, force_aspect_ratio))
+                if (Mathf.Approximately(screen_aspect_ratio, force_aspect_ratio))
                 {
                     Camera.rect = fullScreenRectangle;
                 }
-                else if (screen_spect_ratio > force_aspect_ratio)
+                else if (screen_aspect_ratio > force_aspect_ratio)
                 {
-                    float normalized_width = force_aspect_ratio / screen_spect_ratio;
+                    float normalized_width = Mathf.Clamp01(force_aspect_ratio / screen_aspect_ratio);
                     Camera.rect = new Rect
                     (
                         Mathf.Lerp(fullScreenRectangle.x, (1.0f - normalized_width) * 0.5f, blend),
-                        0.0f,
+                        fullScreenRectangle.y,
                         Mathf.Lerp(fullScreenRectangle.width, normalized_width, blend),
-                        1.0f
+                        fullScreenRectangle.height
                     );
                 }
                 else
                 {
-                    float normalized_height = screen_spect_ratio / force_aspect_ratio;
+                    float normalized_height = Mathf.Clamp01(screen_aspect_ratio / force_aspect_ratio);
                     Camera.rect = new Rect
                     (
-                        0.0f,
+                        fullScreenRectangle.x,
                         Mathf.Lerp(fullScreenRectangle.y, (1.0f - normalized_height) * 0.5f, blend),
-                        1.0f,
+                        fullScreenRectangle.width,
                         Mathf.Lerp(fullScreenRectangle.height, normalized_height, blend)
                     );
                 }
