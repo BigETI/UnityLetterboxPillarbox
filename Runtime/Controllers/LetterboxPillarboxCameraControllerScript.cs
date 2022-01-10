@@ -18,11 +18,24 @@ namespace UnityLetterboxPillarbox.Controllers
     public class LetterboxPillarboxCameraControllerScript : AControllerScript, ILetterboxPillarboxCameraController
     {
         /// <summary>
+        /// Full screen rectangle
+        /// </summary>
+        private static readonly Rect fullScreenRectangle = new Rect(0.0f, 0.0f, 1.0f, 1.0f);
+
+        /// <summary>
         /// Force aspect ratio
         /// </summary>
         [SerializeField]
         [Tooltip("Forces camera aspect ratio with the specified values.")]
         private Vector2 forceAspectRatio = new Vector2(21.0f, 9.0f);
+
+        /// <summary>
+        /// Aspect ratio blend
+        /// </summary>
+        [SerializeField]
+        [Range(0.0f, 1.0f)]
+        [Tooltip("Blends between screen aspect ratio and forced aspect ratio.")]
+        private float blend = 1.0f;
 
         /// <summary>
         /// Letterbox/Pillarbox color
@@ -35,6 +48,11 @@ namespace UnityLetterboxPillarbox.Controllers
         /// Old force aspect ratio
         /// </summary>
         private Vector2 oldForceAspectRatio;
+
+        /// <summary>
+        /// Old blend
+        /// </summary>
+        private float oldBlend;
 
         /// <summary>
         /// Old letterbox/pillarbox color
@@ -68,6 +86,15 @@ namespace UnityLetterboxPillarbox.Controllers
         }
 
         /// <summary>
+        /// Aspect ratio blend
+        /// </summary>
+        public float Blend
+        {
+            get => blend;
+            set => blend = Mathf.Clamp01(value);
+        }
+
+        /// <summary>
         /// Letterbox/Pillarbox color
         /// </summary>
         public Color LetterboxPillarboxColor
@@ -91,22 +118,35 @@ namespace UnityLetterboxPillarbox.Controllers
                 float screen_spect_ratio = Screen.width / (float)Screen.height;
                 float force_aspect_ratio = forceAspectRatio.x / forceAspectRatio.y;
                 oldForceAspectRatio = forceAspectRatio;
+                oldBlend = blend;
                 oldLetterboxPillarboxColor = letterboxPillarboxColor;
                 oldScreenSize = new Vector2Int(Screen.width, Screen.height);
                 isClearingFrameBuffer = true;
                 if (Mathf.Approximately(screen_spect_ratio, force_aspect_ratio))
                 {
-                    Camera.rect = new Rect(0.0f, 0.0f, 1.0f, 1.0f);
+                    Camera.rect = fullScreenRectangle;
                 }
                 else if (screen_spect_ratio > force_aspect_ratio)
                 {
                     float normalized_width = force_aspect_ratio / screen_spect_ratio;
-                    Camera.rect = new Rect((1.0f - normalized_width) * 0.5f, 0.0f, normalized_width, 1.0f);
+                    Camera.rect = new Rect
+                    (
+                        Mathf.Lerp(fullScreenRectangle.x, (1.0f - normalized_width) * 0.5f, blend),
+                        0.0f,
+                        Mathf.Lerp(fullScreenRectangle.width, normalized_width, blend),
+                        1.0f
+                    );
                 }
                 else
                 {
                     float normalized_height = screen_spect_ratio / force_aspect_ratio;
-                    Camera.rect = new Rect(0.0f, (1.0f - normalized_height) * 0.5f, 1.0f, normalized_height);
+                    Camera.rect = new Rect
+                    (
+                        0.0f,
+                        Mathf.Lerp(fullScreenRectangle.y, (1.0f - normalized_height) * 0.5f, blend),
+                        1.0f,
+                        Mathf.Lerp(fullScreenRectangle.height, normalized_height, blend)
+                    );
                 }
             }
         }
@@ -164,7 +204,7 @@ namespace UnityLetterboxPillarbox.Controllers
                 isBeginFrameRenderingEventNotRegistered = false;
             }
 #endif
-            if (((oldForceAspectRatio != forceAspectRatio) || (oldScreenSize.x != Screen.width) || (oldScreenSize.y != Screen.height) || (oldLetterboxPillarboxColor != letterboxPillarboxColor)) && Camera)
+            if (((oldForceAspectRatio != forceAspectRatio) || (oldBlend != blend) || (oldScreenSize.x != Screen.width) || (oldScreenSize.y != Screen.height) || (oldLetterboxPillarboxColor != letterboxPillarboxColor)) && Camera)
             {
                 UpdateAspectRatio();
             }

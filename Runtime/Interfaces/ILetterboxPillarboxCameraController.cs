@@ -17,6 +17,11 @@ namespace UnityLetterboxPillarbox
         Vector2 ForceAspectRatio { get; set; }
 
         /// <summary>
+        /// Aspect ratio blend
+        /// </summary>
+        float Blend { get; set; }
+
+        /// <summary>
         /// Letterbox/Pillarbox color
         /// </summary>
         Color LetterboxPillarboxColor { get; set; }
