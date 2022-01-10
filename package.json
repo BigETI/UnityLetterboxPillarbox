@@ -1,0 +1,16 @@
+{
+    "name": "com.bigeti.letterboxpillarbox",
+    "version": "1.0.0",
+    "displayName": "Unity Letterbox/Pillarbox",
+    "description": "This package contains modules to show letterboxes/pillarboxes. It can be used for fixing aspect ratios or adding cinematic experiences to your game.",
+    "dependencies": {},
+    "keywords": [
+        "letterbox",
+        "pillarbox"
+    ],
+    "author": {
+        "name": "Ethem Kurt",
+        "email": "bigeti.ethem@gmail.com",
+        "url": "https://bigeti.de/"
+    }
+}
